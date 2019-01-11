@@ -61,11 +61,11 @@ const state = {
     restartCountdown: 3,
     //NTJZXM000617 NTJZXM002270
     //baseURL: 'http://192.168.20.190:8080/erp-web/client/'
-    //baseURL: 'http://192.168.1.157:7001/erp-web/client/'
+    baseURL: 'http://192.168.1.157:7001/erp-web/client/'
     //baseURL: 'http://192.168.20.190:8082/erp-web/client/'
     //baseURL: 'http://192.168.1.156:8083/erp-web/client/'
     //baseURL: 'http://58.221.137.62:8081/client/'//盐城线上
-    baseURL: 'http://218.91.253.77:8001/client/' //南通线上
+    //baseURL: 'http://218.91.253.77:8001/client/' //南通线上
   },
   moveToBoard: {
     isVisible: false,

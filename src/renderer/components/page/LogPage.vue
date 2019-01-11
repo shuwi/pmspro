@@ -210,7 +210,7 @@
       },
       populate() {
         this.$refs.logs.exportCsv({
-          filename: '测试导出',
+          filename: '考勤记录',
           columns: this.logcolumns.filter((col, index) => index < 9 && index > 0),
           data: this.logdata
         })

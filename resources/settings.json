@@ -1,0 +1,35 @@
+{
+  "activeBoard": "default",
+  "boards": [
+    {
+      "id": "default",
+      "label": "Default board",
+      "showDone": false,
+      "prependNewItem": false,
+      "items": []
+    }
+  ],
+  "appSettings": {
+    "wasImported": false,
+    "itemCreationDate": true,
+    "prependNewItems": true,
+    "showUpdates": true
+  },
+  "dbSettings": {
+    "isuse": "1",
+    "host": "localhost",
+    "user": "root",
+    "password": "demo123",
+    "database": "labour",
+    "port": 3306
+  },
+  "checkinSettings": {
+    "checkinhost": "192.168.20.5",
+    "checkinport": 9922
+  },
+  "userlog": {
+    "mode": "2",
+    "username": "NTJZXM002270",
+    "password": "123456"
+  }
+}

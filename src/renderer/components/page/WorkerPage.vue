@@ -745,6 +745,7 @@
                   sock.on('end', function () {
                     console.log('receive = ', receive)
                     if (receive.indexOf('Return(result="success"') !== -1) {
+                      receive = receive.replace('authority="0X00"','authority="0X1"')
                       that.$workersMysqlRepo.updateWorkerMachineInfo(receive, userid).then((res) => {
 
                         if (res.results.affectedRows === 1)

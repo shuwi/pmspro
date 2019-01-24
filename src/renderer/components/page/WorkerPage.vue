@@ -688,17 +688,14 @@
             `EnrollEmployee(id="${params.row.userId}" name="${params.row.name}" dutyrule="1" photo="1" save="3")`
           console.log('utf8str = ', utf8str)
           client.write(iconv.encode(utf8str, 'GBK'))
-          // 向端口写入数据到达服务端
-
         })
         client.on('data', function (data) {
-          console.log('返回数据：', iconv.decode(data, 'GBK'))
+          //console.log('返回数据：', iconv.decode(data, 'GBK'))
           if (data.toString() === 'Return(result="success" status="cancel")') {
             that.$Modal.warning({
               title: '提示',
               content: `<p style="font-size:12px;">操作已取消！</p>`
             })
-
             that.$Spin.hide()
           } else if (data.toString().length > 500) {
             var updatedata = {
@@ -739,12 +736,10 @@
                   var sock = client.connect(port, host, function () {
                     var utf8str = `GetEmployee(id="${userid}")`
                     sock.write(iconv.encode(utf8str, 'GBK'))
-                    // 向端口写入数据到达服务端
                     sock.end()
                   })
                   sock.setTimeout(5000)
                   sock.on('data', function (data) {
-                    //const strdata = iconv.decode(data, 'GBK')
                     receive += iconv.decode(data, 'GBK')
                   })
                   sock.on('end', function () {
@@ -800,13 +795,7 @@
           })
           that.$Spin.hide()
         })
-
-        client.on('close', function () {
-          // 正常关闭连接
-          console.log('Connection closed')
-          that.$Spin.hide()
-        })
-      },
+      }
     }
 
   }

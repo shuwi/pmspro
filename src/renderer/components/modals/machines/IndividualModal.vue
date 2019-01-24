@@ -25,6 +25,7 @@
 </template>
 <script>
   import settingsRepository from '@/repositories/settingsRepository'
+  import socketRepository from '@/repositories/socketRepository'
   export default {
     name: 'individual-modal',
     props: ['machinesellist'],
@@ -144,61 +145,57 @@
       },
       rowdel(row) {
         var postdata = `DeleteEmployee(id="${row.userId}")`
-        var net = require('net')
-        var iconv = require('iconv-lite')
-        var client = new net.Socket()
-        var receive = ''
         var that = this
-        var sock = client.connect(row.port, row.ip, function () {
-          sock.write(iconv.encode(postdata, 'GBK'))
-          // 向端口写入数据到达服务端
-          sock.end()
-        })
-        sock.setTimeout(5000)
-        sock.on('data', function (data) {
-          receive += iconv.decode(data, 'GBK')
-        })
-        sock.on('end', function () {
-          console.log('receive = ', receive)
-          if (receive.indexOf('Return(result="success"') !== -1) {
-            var moment = require('moment')
-            var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
-            var commandsdata = {
-              machinesn: that.machinesellist[0].sn,
-              projectid: that.$store.state.modals.login.projectId.id,
-              createdate: datenow,
-              executedate: datenow,
-              commandtype: '移除个别人员',
-              commandcontent: postdata,
-              commandresponse: receive,
-              resulttype: 1
+        
+        var req = {
+          ip: row.ip,
+          port: row.port,
+          postdata: postdata
+        }
+        socketRepository.socketSend(req).then((res) => {
+          if (res.results) {
+            var receive = res.results
+            if (receive.indexOf('Return(result="success"') !== -1) {
+              var moment = require('moment')
+              var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
+              var commandsdata = {
+                machinesn: that.machinesellist[0].sn,
+                projectid: that.$store.state.modals.login.projectId.id,
+                createdate: datenow,
+                executedate: datenow,
+                commandtype: '移除个别人员',
+                commandcontent: postdata,
+                commandresponse: receive,
+                resulttype: 1
+              }
+              that.commandInsert(commandsdata)
             }
-            that.commandInsert(commandsdata, row.name)
-          }
-          if (receive.indexOf('Return(result="failed" reason="unknown id")') !== -1) {
-            var moment = require('moment')
-            var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
-            var commandsdata = {
-              machinesn: that.machinesellist[0].sn,
-              projectid: that.$store.state.modals.login.projectId.id,
-              createdate: datenow,
-              executedate: datenow,
-              commandtype: '移除个别人员',
-              commandcontent: postdata,
-              commandresponse: receive,
-              resulttype: 2,
-              commandext: `人员${row.userId} ${row.name}不存在!`
+            if (receive.indexOf('Return(result="failed" reason="unknown id")') !== -1) {
+              var moment = require('moment')
+              var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
+              var commandsdata = {
+                machinesn: that.machinesellist[0].sn,
+                projectid: that.$store.state.modals.login.projectId.id,
+                createdate: datenow,
+                executedate: datenow,
+                commandtype: '移除个别人员',
+                commandcontent: postdata,
+                commandresponse: receive,
+                resulttype: 2,
+                commandext: `人员${row.userId} ${row.name}不存在!`
+              }
+              that.commandInsert(commandsdata)
+              that.$Notice.error({
+                title: '提醒',
+                desc: `人员${row.userId} ${row.name}不存在!`
+              })
             }
-            that.commandInsert(commandsdata, row.name)
-            that.$Notice.error({
-              title: '提醒',
-              desc: `人员${row.userId} ${row.name}不存在!`
-            })
           }
-          sock.destroy()
+        }).catch((err) => {
+          that.$Modal.error(err)
         })
       },
-      commandInsert(data, indiv) {
+      commandInsert(data) {
         var that = this
         var log = settingsRepository.getUserlog()
 
@@ -209,13 +206,13 @@
               title: '提醒',
               desc: '新增命令记录成功'
             })
-            
+
           } else {
             that.$Notice.error({
               title: '提醒',
               desc: '新增命令记录失败'
             })
-            
+
           }
         }).catch((err) => {
           that.$Notice.error({

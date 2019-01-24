@@ -342,7 +342,7 @@
       margin-bottom: 30px;
       border: 1px solid #d3d3d3;
       border-radius: 6px;
-      box-shadow: 1px 1px 25px 0 rgba(0, 0, 0, 0.158);
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.15);
       transition: all .4s ease-in-out;
     }
 

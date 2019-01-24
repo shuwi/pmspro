@@ -10,5 +10,6 @@ thumbs.db
 !.gitkeep
 .idea
 backlog.json
+package-lock.json
 window.json
 pms-pro-installer.exe

@@ -4,22 +4,22 @@
     <p slot="header">
       <Icon type="md-archive" />
       <span style="font-weight:normal;">手动下发人员信息</span>
+      <span style="font-weight:normal;font-size:12px;color:green;">单击人员列表所在行即可下发</span>
     </p>
-    <div style="text-align:center">
-      <div style="margin:0 auto 20px auto;width:95%;">
+    <div>
+      <p style="margin:0 auto 20px auto;width:95%;">
         <Table border :columns="workerColumns" :data="workersArr" ref="selectedWorkers" width="100%" size="small"
           @on-row-click="rowClick"></Table>
-      </div>
-      <div style="margin:0 auto 20px auto;width:95%;">
-        <Button type="info" @click="handleSubmit" shape="circle" style="width:120px;">提交</Button>
-        <Button shape="circle" @click="closeModal" style="width:120px;margin-left:8px;">取消</Button>
-        <Page :current="current" :total="total" show-total style="float:right;" @on-change="refreshList" :page-size="pagesize" />
-      </div>
+      </p>
+      <p style="margin:0 auto 20px auto;width:95%;text-align:right;">
+        <Page :current="current" :total="total" show-total @on-change="refreshList" :page-size="pagesize" />
+      </p>
     </div>
   </Modal>
 </template>
 <script>
   import settingsRepository from '@/repositories/settingsRepository'
+  import socketRepository from '@/repositories/socketRepository'
   export default {
     name: 'removal-modal',
     props: ['machinesellist'],
@@ -111,9 +111,6 @@
           console.log('getRemovals Error: ', err)
         })
       },
-      handleSubmit() {
-
-      },
       visibleChange(isVisible) {
         if (!isVisible) {
           this.closeModal()
@@ -127,49 +124,39 @@
       },
       rowClick(row, index) {
         var postdata = row.machinepost.replace(/Return/g, 'SetEmployee').replace('result="success" ', '')
-        console.log('row = ', row)
-        console.log('index = ', index)
-        var net = require('net')
-        var iconv = require('iconv-lite')
-        var client = new net.Socket()
-        var receive = ''
         var that = this
-        var sock = client.connect(row.port, row.ip, function () {
-          sock.write(iconv.encode(postdata, 'GBK'))
-          // 向端口写入数据到达服务端
-          sock.end()
-        })
-        sock.setTimeout(5000)
-        sock.on('data', function (data) {
-          //const strdata = iconv.decode(data, 'GBK')
-          receive += iconv.decode(data, 'GBK')
-        })
-        sock.on('end', function () {
-          console.log('receive = ', receive)
-          if (receive.indexOf('Return(result="success"') !== -1) {
-            var moment = require('moment')
-            var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
-            var commandsdata = {
-              machinesn: that.machinesellist[0].sn,
-              projectid: that.$store.state.modals.login.projectId.id,
-              createdate: datenow,
-              executedate: datenow,
-              commandtype: '手动下发人员信息',
-              commandcontent: postdata,
-              commandresponse: receive,
-              resulttype: 1
+        var req = {
+          ip: row.ip,
+          port: row.port,
+          postdata: postdata
+        }
+        socketRepository.socketSend(req).then((res) => {
+          if (res.results) {
+            var receive = res.results
+            if (receive.indexOf('Return(result="success"') !== -1) {
+              var moment = require('moment')
+              var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
+              var commandsdata = {
+                machinesn: that.machinesellist[0].sn,
+                projectid: that.$store.state.modals.login.projectId.id,
+                createdate: datenow,
+                executedate: datenow,
+                commandtype: '手动下发人员信息',
+                commandcontent: postdata,
+                commandresponse: receive,
+                resulttype: 1
+              }
+              that.commandInsert(commandsdata, row.name)
             }
-            that.commandInsert(commandsdata, row.name)
           }
-          sock.destroy()
+        }).catch((err) => {
+          that.$Modal.error(err)
         })
       },
       commandInsert(data, indiv) {
         var that = this
         var log = settingsRepository.getUserlog()
-
         data.commandfrom = log.username
-
         that.$commandRepo.create(data).then((res) => {
           if (res.results.insertId > 0) {
             that.$Notice.success({

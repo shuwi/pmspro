@@ -104,7 +104,7 @@
       this.loglistChange(1)
     },
     methods: {
-       ...mapActions([
+      ...mapActions([
         'showLogModal',
         'hideLogModal'
       ]),

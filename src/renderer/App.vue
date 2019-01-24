@@ -39,7 +39,7 @@
         var schedule = require("node-schedule")
         var rule = new schedule.RecurrenceRule()
         var times = [1, 21, 41, 56]
-        //var times = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58]
+        
         var that = this
         rule.minute = times
         schedule.scheduleJob(rule, function () {
@@ -115,7 +115,7 @@
     #logo {
       position: fixed;
       top: 0px;
-      width: 300px;
+      width: 550px;
       left: 0px;
       padding: 0px;
       background: #eef0f6;
@@ -130,7 +130,7 @@
 
     #logocontent {
       margin-top: 0;
-      width: 200px;
+      width: 450px;
       height: 55px;
       display: inline-block;
       text-align: left;
@@ -154,7 +154,7 @@
       position: fixed;
       top: 35px;
       width: 90vw;
-      left: 300px;
+      left: 460px;
       padding: 0px;
       height: 45px;
       text-align: left;
@@ -299,7 +299,7 @@
 
     .Circle-custom {
       text-align: center;
-      padding-top: 300px;
+      padding-top: 200px;
       margin: 0 auto;
       color: #fff;
       z-index: 333;
@@ -342,7 +342,7 @@
       margin-bottom: 30px;
       border: 1px solid #d3d3d3;
       border-radius: 6px;
-      box-shadow: 1px 1px 15px 0 rgba(0, 0, 0, 0.137);
+      box-shadow: 1px 1px 25px 0 rgba(0, 0, 0, 0.158);
       transition: all .4s ease-in-out;
     }
 

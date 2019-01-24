@@ -225,7 +225,7 @@
                 })
               }
               that.$Spin.hide()
-              that.$store.state.modals.card.data = that.formInline
+              that.$store.state.modals.card.data = carddata
               that.closeModal()
             })
         })

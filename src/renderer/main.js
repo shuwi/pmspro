@@ -17,6 +17,7 @@ import LogsRepository from './repositories/logsRepository'
 import WorkKindRepository from './repositories/workkindRepository'
 import ClassNoRepository from './repositories/classnoRepository'
 import WorkersMysqlRepository from './repositories/workersMysqlRepository'
+import CommandRepository from './repositories/commandRepository'
 
 require('autolink-js')
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
@@ -34,6 +35,7 @@ const machinesRepo = new MachinesRepository(mysqldao)
 const workkindRepo = new WorkKindRepository(mysqldao)
 const classNoRepo = new ClassNoRepository(mysqldao)
 const workersMysqlRepo = new WorkersMysqlRepository(mysqldao)
+const commandRepo = new CommandRepository(mysqldao)
 
 Object.defineProperties(Vue.prototype, {
   $bus: {
@@ -74,6 +76,11 @@ Object.defineProperties(Vue.prototype, {
   $workersMysqlRepo: {
     get: function () {
       return workersMysqlRepo
+    }
+  },
+  $commandRepo: {
+    get: function () {
+      return commandRepo
     }
   }
 })

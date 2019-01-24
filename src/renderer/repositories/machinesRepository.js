@@ -24,7 +24,10 @@ export default class MachinesRepository {
       projectId int(11) NOT NULL COMMENT '项目主键',
       code varchar(255) DEFAULT NULL COMMENT '设备号',
       deviceType varchar(255) DEFAULT NULL COMMENT '设备类型',
+      algedition varchar(255) DEFAULT NULL COMMENT '识别算法版本',
+      edition varchar(255) DEFAULT NULL COMMENT '固件版本',
       remark varchar(255) DEFAULT NULL COMMENT '描述信息',
+      delFlag tinyint(2) DEFAULT '1' COMMENT 'C端数据有效与否标记 1：有效-1：无效',
       PRIMARY KEY (id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
     `
@@ -98,7 +101,7 @@ export default class MachinesRepository {
   }
   getUnuploadMachines(projectid) {
     return this.dao.run(
-      `SELECT * from machine where projectId = ${projectid} and delFlag = -1 and name is not null`)
+      `SELECT * from machine where projectId = ${projectid} and name is not null`)
   }
   /**
    * 根据主键数组批量删除考勤设备记录

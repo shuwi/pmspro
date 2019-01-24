@@ -109,8 +109,7 @@ export default class WorkersRepository {
    */
   getWorkersCount (keyword, pid) {
     return this.dao.get(
-      `SELECT count(id) as num from worker where (groupname like '${keyword}%' or userId like '${keyword}%' or mobile like '${keyword}%' or name like '${keyword}%') and projectId = ?`,
-      [pid])
+      `SELECT count(id) as num from worker where (groupname like '${keyword}%' or userId like '${keyword}%' or mobile like '${keyword}%' or name like '${keyword}%') and projectId = ${pid}`)
   }
   /**
    * 根据关键词和项目主键、页码等查询工人数据

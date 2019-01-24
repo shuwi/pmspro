@@ -15,6 +15,7 @@ export default class LogsRepository {
         logdate varchar(255) NOT NULL COMMENT '考勤时间',
         photo text,
         uploaded tinyint(2) NOT NULL DEFAULT '0' COMMENT '是否已上传',
+        posttype tinyint(2) NOT NULL DEFAULT '0' COMMENT '是否是补考勤标志0：正常考勤1：补考勤',
         PRIMARY KEY (id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       `
@@ -25,7 +26,6 @@ export default class LogsRepository {
    * @param {*} value k-v数据对象
    */
   create(value) {
-    
     var statlist = []
     var vallist = []
     for (var i in value) {
@@ -65,7 +65,7 @@ export default class LogsRepository {
         AND w.inState = 1
         AND m.projectId = ${projectId}
         AND w.projectId = ${projectId}
- AND (p.userid like '${keyword}%' or p.machinesn like '${keyword}%' or p.logdate like '${keyword}%')`)
+        AND (p.userid like '${keyword}%' or p.machinesn like '${keyword}%' or p.logdate like '${keyword}%') order by p.id desc`)
   }
   getUploadLogs(projectId) {
     return this.dao.run(
@@ -124,7 +124,7 @@ export default class LogsRepository {
         AND w.inState = 1
         AND m.projectId = ${projectId}
         AND w.projectId = ${projectId}
-      AND (p.userid like '${keyword}%' or p.machinesn like '${keyword}%' or p.logdate like '${keyword}%') limit ?,?`,
+        AND (p.userid like '${keyword}%' or p.machinesn like '${keyword}%' or p.logdate like '${keyword}%') order by p.id desc limit ?,?`,
       [(pagenum - 1) * pagesize, pagesize])
   }
   uploaded(dellist) {

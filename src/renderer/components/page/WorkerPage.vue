@@ -239,10 +239,8 @@
           })
         } else {
           that.$workersMysqlRepo.createTable().then(() => that.$workersMysqlRepo.getWorkersCount(k, pid)).then((data) => {
-
             that.total = data.results[0].num
           }).then(() => that.$workersMysqlRepo.getWorkers(k, pid, 1, that.pagesize)).then((userlist) => {
-
             that.udata = userlist.results
           }).catch((err) => {
             console.log('createTable workers Error: ', err)
@@ -254,79 +252,6 @@
           that.getWorkKind(1)
           that.getWorkKind(2)
           that.getWorkKind(3)
-          /* that.$workersMysqlRepo.getUploadWorkers(pid).then((res) => {
-            var postdata = []
-            var ids = []
-            res.results.forEach(function (v, i, a) {
-              var data = {
-                personId: v.id,
-                workId: v.workKind,
-                kindName: v.workKindName,
-                className: v.classNo,
-                ngProjectId: v.projectId,
-                comId: 0,
-                name: v.name,
-                idCard: v.userId,
-                mobile: v.mobile,
-                birthday: v.birthday,
-                address: v.homeAddress,
-                gender: v.gender,
-                currAddress: v.currentAddresss,
-                image: v.photo,
-                joinStatus: v.inState > 1 ? 0 : (v.inState < 1 ? 1 : 2),
-                password: '7c4a8d09ca3762af61e59520943dc26494f8941b',
-                idCardType: v.idCardType,
-                nation: v.nation === null ? '01' : v.nation,
-                birthPlaceCode: v.birthPlaceCode,
-                politicsType: v.politicsType,
-                unJoined: v.unJoined,
-                joinedTime: v.joinedTime,
-                cultureLevelType: v.cultureLevelType,
-                noBadMedicalHistory: v.noBadMedicalHistory,
-                urgentContractName: v.urgentContractName,
-                urgentContractCellphone: v.urgentContractCellphone,
-                workDate: v.workDate,
-                workAccommodationType: v.workAccommodationType,
-                workKindtype: v.workKindType,
-                personType: v.personType,
-                startDate: v.beginnew,
-                endDate: v.endnew,
-                joinInDate: v.checkinState === 1 ? v.checkinTime : null,
-                joinOutDate: v.checkinState === 0 ? v.checkinTime : null,
-                delFlag: 1
-              }
-              postdata.push(data)
-              ids.push(v.id)
-
-            })
-            console.log('postdata= ', postdata)
-            if (postdata.length > 0)
-              that.$http({
-                baseURL: that.$store.state.modals.settings.baseURL,
-                url: '/addClientUser.whtml',
-                method: 'post',
-                data: {
-                  clientUser: JSON.stringify(postdata)
-                },
-                headers: {
-                  'Content-Type': 'application/json',
-                  'token': that.$store.state.modals.login.token
-                }
-              })
-              .then(function (data) {
-                if (data.data.code === 1) {
-                  that.$workersMysqlRepo.updateWorkersDel(1, ids).then((res) => {
-                    console.log('批量提交后更新删除状态:', res)
-                  }).catch((err) => {
-                    console.log('updateWorkersDel Error: ', err)
-                  })
-                }
-                console.log(data)
-              })
-              .catch(function (error) {
-                console.log(error)
-              })
-          }) */
         }
       },
       getWorkKind(type) {
@@ -506,6 +431,7 @@
       },
       testone() {
         var that = this
+        that.$Spin.show()
         that.$http({
             baseURL: that.$store.state.modals.settings.baseURL,
             url: '/queryUserProjectRole.whtml',
@@ -522,7 +448,7 @@
             }
           })
           .then(function (data) {
-            console.log(data)
+
             if (data.data.list.classInfo.length <= 0) {
               that.$Notice.error({
                 title: '提醒',
@@ -530,7 +456,7 @@
               })
               return
             }
-            that.getloading = true
+
             var workers = data.data.list.classInfo
             var insertData = []
             workers.forEach(function (v, i, a) {
@@ -576,10 +502,10 @@
                 .then((dd) => {
                   console.log('dd = ', dd)
                   insertData.forEach(function (v, i, a) {
-                    return that.$workersMysqlRepo.getCount(v.userId, v.projectId).then((res) => {
+                    that.$workersMysqlRepo.getCount(v.userId, v.projectId).then((res) => {
                       console.log('res = ', res)
                       if (res.results[0].num <= 0) {
-                        return that.$workersMysqlRepo.create(v).then((r) => {
+                        that.$workersMysqlRepo.create(v).then((r) => {
                           console.log('create r = ', r)
                           if (r.results.insertId <= 0) {
                             that.$Notice.error({
@@ -595,7 +521,7 @@
                           console.log(err)
                         })
                       } else {
-                        return that.$workersMysqlRepo.update(v).then((r) => {
+                        that.$workersMysqlRepo.update(v).then((r) => {
                           console.log('update r = ', r)
                           if (r.results.affectedRows !== 1) {
                             that.$Notice.error({
@@ -618,8 +544,6 @@
                 })
                 .catch((err) => {
                   console.log(err)
-                }).finally(() => {
-                  that.getloading = false
                 })
             } else {
 
@@ -631,10 +555,10 @@
                       if (res.num <= 0) {
                         return that.$workersRepo.create(v).then((r) => {
                           if (r.id > 0) {
-                            that.$Notice.success({
+                            /* that.$Notice.success({
                               title: '提醒',
                               desc: '人员数据获取成功'
-                            })
+                            }) */
                           }
                         }).catch((err) => {
                           that.$Notice.error({
@@ -646,10 +570,10 @@
                       } else {
                         return that.$workersRepo.update(v).then((r) => {
                           if (r.affected > 0) {
-                            that.$Notice.success({
+                            /* that.$Notice.success({
                               title: '提醒',
                               desc: '人员数据获取成功'
-                            })
+                            }) */
                           }
                         }).catch((err) => {
                           that.$Notice.error({
@@ -673,6 +597,14 @@
           })
           .catch(function (error) {
             console.log(error)
+          }).finally(() => {
+            that.groupNoGet()
+            that.getNewData()
+            that.$Spin.hide()
+            that.$Notice.success({
+              title: '提醒',
+              desc: '人员数据获取成功'
+            })
           })
       },
       getBirthPlaceCode(val) {
@@ -751,14 +683,16 @@
           })
           setTimeout(() => {
             that.$Spin.hide()
-          }, 1000 * 60)
+          }, 1000 * 90)
           var utf8str =
             `EnrollEmployee(id="${params.row.userId}" name="${params.row.name}" dutyrule="1" photo="1" save="3")`
           console.log('utf8str = ', utf8str)
           client.write(iconv.encode(utf8str, 'GBK'))
           // 向端口写入数据到达服务端
+
         })
         client.on('data', function (data) {
+          console.log('返回数据：', iconv.decode(data, 'GBK'))
           if (data.toString() === 'Return(result="success" status="cancel")') {
             that.$Modal.warning({
               title: '提示',
@@ -773,27 +707,82 @@
               'userId': params.row.userId,
               'projectId': params.row.projectId
             }
-            that.$workersRepo.update(updatedata).then((lastid) => {
-              if (lastid.affected > 0) {
-                that.$Modal.success({
-                  title: '提示',
-                  content: `<p style="font-size:12px;">登记成功！</p>`
-                })
-              } else {
+            if (that.$store.state.modals.login.mode !== '2') {
+              that.$workersRepo.update(updatedata).then((lastid) => {
+                console.log('登记更新：', lastid)
+                if (lastid.affected > 0) {
+                  that.$Modal.success({
+                    title: '提示',
+                    content: `<p style="font-size:12px;">登记成功！</p>`
+                  })
+                } else {
+                  that.$Modal.info({
+                    title: '提示',
+                    content: `<p style="font-size:12px;">登记状态更新失败或者已更新！</p>`
+                  })
+                }
+              }).catch((err) => {
                 that.$Modal.error({
                   title: '提示',
-                  content: `<p style="font-size:12px;">登记状态更新失败！</p>`
+                  content: `<p style="font-size:12px;">登记操作异常！</p>`
                 })
-              }
-            }).catch((err) => {
-              that.$Modal.error({
-                title: '提示',
-                content: `<p style="font-size:12px;">登记操作异常！</p>`
+                console.log(err)
+              }).finally(() => {
+                that.$Spin.hide()
               })
-              console.log(err)
-            }).finally(() => {
-              that.$Spin.hide()
-            })
+            } else {
+              that.$workersMysqlRepo.update(updatedata).then((lastid) => {
+                if (lastid.results.affectedRows === 1) {
+                  var client = new net.Socket()
+                  var userid = params.row.userId
+                  var receive = ''
+                  var sock = client.connect(port, host, function () {
+                    var utf8str = `GetEmployee(id="${userid}")`
+                    sock.write(iconv.encode(utf8str, 'GBK'))
+                    // 向端口写入数据到达服务端
+                    sock.end()
+                  })
+                  sock.setTimeout(5000)
+                  sock.on('data', function (data) {
+                    //const strdata = iconv.decode(data, 'GBK')
+                    receive += iconv.decode(data, 'GBK')
+                  })
+                  sock.on('end', function () {
+                    console.log('receive = ', receive)
+                    if (receive.indexOf('Return(result="success"') !== -1) {
+                      that.$workersMysqlRepo.updateWorkerMachineInfo(receive, userid).then((res) => {
+
+                        if (res.results.affectedRows === 1)
+                          that.$Modal.success({
+                            title: '提示',
+                            content: `<p style="font-size:12px;">登记成功！</p>`
+                          })
+                        else
+                          that.$Modal.error({
+                            title: '提示',
+                            content: `<p style="font-size:12px;">登记失败或已登记！</p>`
+                          })
+                      })
+                    }
+                    sock.destroy()
+                  })
+
+                } else {
+                  that.$Modal.info({
+                    title: '提示',
+                    content: `<p style="font-size:12px;">登记状态更新失败或者已更新！</p>`
+                  })
+                }
+              }).catch((err) => {
+                that.$Modal.error({
+                  title: '提示',
+                  content: `<p style="font-size:12px;">登记操作异常！</p>`
+                })
+                console.log(err)
+              }).finally(() => {
+                that.$Spin.hide()
+              })
+            }
           } else {
             that.$Modal.warning({
               title: '提示',
@@ -802,6 +791,7 @@
 
             that.$Spin.hide()
           }
+          client.destroy()
         })
         client.on('error', function () { // 连接错误
           that.$Modal.error({

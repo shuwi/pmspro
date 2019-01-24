@@ -37,6 +37,13 @@ const state = {
     isVisible: false,
     data: {}
   },
+  removal: {
+    isVisible: false,
+    data: {}
+  },
+  commandModal: {
+    isVisible: false
+  },
   card: {
     isVisible: false,
     data: {}
@@ -51,21 +58,24 @@ const state = {
   logModal: {
     isVisible: false
   },
+  individualModal: {
+    isVisible: false
+  },
   settings: {
     isVisible: false,
     currentVersion: '0.1.0',
-    appName: '考勤管理系统旗舰版',
+    appName: '星云智能建筑从业人员管理客户端',
     boardsList: [],
     restartRequired: false,
     restartReqCloak: false,
     restartCountdown: 3,
     //NTJZXM000617 NTJZXM002270
     //baseURL: 'http://192.168.20.190:8080/erp-web/client/'
-    baseURL: 'http://192.168.1.157:7001/erp-web/client/'
+    //baseURL: 'http://192.168.1.157:7001/erp-web/client/'
     //baseURL: 'http://192.168.20.190:8082/erp-web/client/'
     //baseURL: 'http://192.168.1.156:8083/erp-web/client/'
     //baseURL: 'http://58.221.137.62:8081/client/'//盐城线上
-    //baseURL: 'http://218.91.253.77:8001/client/' //南通线上
+    baseURL: 'http://218.91.253.77:8001/client/' //南通线上
   },
   moveToBoard: {
     isVisible: false,
@@ -117,6 +127,14 @@ const mutations = {
     state.workKindModal.isVisible = false
     state.workKindModal.data = {}
   },
+  SHOW_REMOVALMODAL(statem, val) {
+    state.removal.isVisible = true
+    state.removal.data = val
+  },
+  HIDE_REMOVALMODAL(state) {
+    state.removal.isVisible = false
+    state.removal.data = {}
+  },
   SHOW_CARD(statem, val) {
     state.card.isVisible = true
     // state.card.data = val
@@ -155,6 +173,12 @@ const mutations = {
   HIDE_MOVE_TO_BOARD(state) {
     state.moveToBoard.isVisible = false
   },
+  SHOW_INDIVIDUAL_MODAL(state) {
+    state.individualModal.isVisible = true
+  },
+  HIDE_INDIVIDUAL_MODAL(state) {
+    state.individualModal.isVisible = false
+  },
   SHOW_UPDATE_MODAL(state) {
     state.update.isVisible = true
   },
@@ -181,10 +205,15 @@ const mutations = {
   },
   SHOW_LOG_MODAL(state) {
     state.logModal.isVisible = true
-    console.log('state.logModal.isVisible = ', state.logModal.isVisible)
   },
   HIDE_LOG_MODAL(state) {
     state.logModal.isVisible = false
+  },
+  SHOW_COMMAND_MODAL(state) {
+    state.commandModal.isVisible = true
+  },
+  HIDE_COMMAND_MODAL(state) {
+    state.commandModal.isVisible = false
   },
   SET_MENU(state, data) {
     state.menuList.data = data
@@ -242,6 +271,16 @@ const actions = {
   }) {
     commit('HIDE_WORKKINDMODAL')
   },
+  showRemovalModal({
+    commit
+  }, val) {
+    commit('SHOW_REMOVALMODAL', val)
+  },
+  hideRemovalModal({
+    commit
+  }) {
+    commit('HIDE_REMOVALMODAL')
+  },
   showCard({
     commit
   }, val) {
@@ -296,6 +335,26 @@ const actions = {
     commit
   }) {
     commit('HIDE_LOG_MODAL')
+  },
+  showCommandModal({
+    commit
+  }) {
+    commit('SHOW_COMMAND_MODAL')
+  },
+  hideCommandModal({
+    commit
+  }) {
+    commit('HIDE_COMMAND_MODAL')
+  },
+  showIndividualModal({
+    commit
+  }) {
+    commit('SHOW_INDIVIDUAL_MODAL')
+  },
+  hideIndividualModal({
+    commit
+  }) {
+    commit('HIDE_INDIVIDUAL_MODAL')
   },
   fetchSettingsBoardsList({
     commit

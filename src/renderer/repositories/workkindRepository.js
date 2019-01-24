@@ -9,7 +9,7 @@ export default class WorkKindRepository {
     const sql = `
       CREATE TABLE IF NOT EXISTS workkind(
         id int(11) NOT NULL AUTO_INCREMENT,
-        smzId int(11) NOT NULL,
+        smzId int(11) NOT NULL DEFAULT '0',
         name varchar(255) NOT NULL COMMENT '工种名称',
         workKindType varchar(20) NOT NULL COMMENT '工种类别',
         workKindTypeName varchar(255) NOT NULL COMMENT '工种类别名称',

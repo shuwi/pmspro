@@ -543,10 +543,10 @@
             that.user.joinedTimeNew = that.user.joinedTime
             that.user.nation = that.user.nation === null ? '01' : that.user.nation
 
-            that.user.beginnew = that.user.beginnew === null || that.user.beginnew === '' ? that.$store.state.modals.login
-              .projectId.begin : that.user.beginnew
-            that.user.endnew = that.user.endnew === null || that.user.endnew === '' ? that.$store.state.modals.login.projectId
-              .end : that.user.endnew
+            that.user.beginnew = that.user.beginnew === null || that.user.beginnew === '' ? that.Toyyyy_MM_dd(that.$store.state.modals.login
+              .projectId.begin) : that.user.beginnew
+            that.user.endnew = that.user.endnew === null || that.user.endnew === '' ? that.Toyyyy_MM_dd(that.$store.state.modals.login.projectId
+              .end) : that.user.endnew
             that.workKindChange(that.user.workKind)
             var tarr = [318, 319, 320]
             if (tarr.indexOf(that.user.workKind) >= 0) {
@@ -763,7 +763,8 @@
         if (typeof setDate === 'undefined' || setDate === null) {
           return ''
         }
-        if (setDate.length === 8) {
+        
+        if (setDate.length >= 8) {
           valDate = setDate.substring(0, 4) + '-' + setDate.substring(4, 6) + '-' + setDate.substring(6, 8)
           return valDate
         } else if (setDate.length === 6) {
@@ -853,9 +854,11 @@
           }
 
           if (valid && that.$store.state.modals.login.token !== '') {
+            console.log('用户数据 = ',that.user)
 
             that.user.projectId = that.$store.state.modals.login.projectId.id
             that.user.card = that.$store.state.modals.card.data
+            
             var userdata = that.user
             var tarr = [318, 319, 320]
             if (tarr.indexOf(userdata.workKind) >= 0) {
@@ -869,6 +872,8 @@
             delete userdata.id
             that.loadingPostUser = true
             that.userdatatemp = Object.assign({}, userdata)
+            that.userdatatemp.beginnew = that.Toyyyy_MM_dd(that.userdatatemp.beginnew)
+            that.userdatatemp.endnew = that.Toyyyy_MM_dd(that.userdatatemp.endnew)
 
             if (userdata.userId === '') {
               that.$Message.error('数据丢失错误!')
@@ -878,6 +883,7 @@
 
             userdata.workDate = null
             userdata.joinedTime = null
+            
             var postdata = {
               user: [userdata]
             }
@@ -1030,7 +1036,7 @@
               statdata.delFlag = -1
               if (res.results[0].num > 0) {
                 that.$workersMysqlRepo.update(statdata).then((re) => {
-                  if (re.affected === 1) {
+                  if (re.results.affectedRows === 1) {
                     that.$Notice.success({
                       title: '提醒',
                       desc: '已存在该人员数据，修改成功'

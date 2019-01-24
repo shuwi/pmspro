@@ -24,12 +24,12 @@
     "port": 3306
   },
   "checkinSettings": {
-    "checkinhost": "192.168.20.5",
+    "checkinhost": "192.168.20.153",
     "checkinport": 9922
   },
   "userlog": {
     "mode": "2",
-    "username": "NTJZXM002270",
+    "username": "NTJZXM000617",
     "password": "123456"
   }
 }

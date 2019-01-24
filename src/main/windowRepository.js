@@ -6,9 +6,9 @@ export default function (userAppPath) {
   const windowSettings = low(windowAdapter)
   windowSettings.defaults({
     windowState: {
-      height: 860,
+      height: 680,
       useContentSize: false,
-      width: 1650,
+      width: 1440,
       show: false,
       minWidth: 600,
       x: undefined,

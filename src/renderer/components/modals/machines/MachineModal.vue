@@ -7,14 +7,14 @@
     </p>
     <Form ref="formInline" :model="formInline" :rules="ruleInline" :label-width="110">
       <FormItem prop="ip" label="IP">
-        <i-input type="text" v-model.trim="formInline.ip" placeholder="请填写设备IP" style="width: 260px">
+        <i-input type="text" v-model.trim="formInline.ip" placeholder="请填写设备IP" style="width: 260px" :disabled="ipinput">
         </i-input>
       </FormItem>
       <FormItem prop="port" label="端口">
         <InputNumber :max="10000" :min="0" v-model.number="formInline.port" style="width: 260px"></InputNumber>
       </FormItem>
       <FormItem prop="serverIp" label="服务器IP">
-        <i-input type="text" v-model.trim="formInline.serverIp" placeholder="请填写IP" style="width: 260px">
+        <i-input type="text" v-model.trim="formInline.serverIp" placeholder="请填写IP" style="width: 260px" :disabled="ipinput">
         </i-input>
       </FormItem>
       <FormItem prop="serverPort" label="服务器端口">

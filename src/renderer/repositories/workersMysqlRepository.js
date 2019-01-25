@@ -121,10 +121,6 @@ export default class WorkersMySQLRepository {
    * @param {*} pagesize 页大小
    */
   getWorkers(keyword, pid, pagenum, pagesize) {
-    console.log('keyword =', keyword)
-    console.log('pid =', pid)
-    console.log('pagenum =', pagenum)
-    console.log('pagesize =', pagesize)
     return this.dao.run(
       `SELECT * from worker where (groupname like '${keyword}%' or userId like '${keyword}%' or mobile like '${keyword}%' or name like '${keyword}%') and projectId = ? limit ?,?`,
       [pid, (pagenum - 1) * pagesize, pagesize])

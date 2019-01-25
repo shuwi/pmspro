@@ -385,13 +385,23 @@
         var that = this
         var pid = that.$store.state.modals.login.projectId.id
         var k = that.keyword === '' ? that.kw : that.keyword
-        that.$workersRepo.getWorkersCount(k, pid).then((data) => {
-          that.total = data.num
-        }).then(() => that.$workersRepo.getWorkers(k, pid, number, that.pagesize)).then((userlist) => {
-          that.udata = userlist
-        }).catch((err) => {
-          console.log('userlistChange Error: ', err)
-        })
+        if (that.$store.state.modals.login.mode !== '2') {
+          that.$workersRepo.getWorkersCount(k, pid).then((data) => {
+            that.total = data.num
+          }).then(() => that.$workersRepo.getWorkers(k, pid, number, that.pagesize)).then((userlist) => {
+            that.udata = userlist
+          }).catch((err) => {
+            console.log('userlistChange Error: ', err)
+          })
+        } else {
+          that.$workersMysqlRepo.getWorkersCount(k, pid).then((data) => {
+            that.total = data.results[0].num
+          }).then(() => that.$workersMysqlRepo.getWorkers(k, pid, number, that.pagesize)).then((userlist) => {
+            that.udata = userlist.results
+          }).catch((err) => {
+            console.log('userlistChange Error: ', err)
+          })
+        }
       },
       groupNoGet() {
         var that = this
@@ -685,7 +695,7 @@
             that.$Spin.hide()
           }, 1000 * 90)
           var utf8str =
-            `EnrollEmployee(id="${params.row.userId}" name="${params.row.name}" dutyrule="1" photo="1" save="3")`
+            `EnrollEmployee(id="${params.row.userId}" name="${params.row.name}" dutyrule="1" photo="1" save="3" authority="17")`
           console.log('utf8str = ', utf8str)
           client.write(iconv.encode(utf8str, 'GBK'))
         })
@@ -745,7 +755,7 @@
                   sock.on('end', function () {
                     console.log('receive = ', receive)
                     if (receive.indexOf('Return(result="success"') !== -1) {
-                      receive = receive.replace('authority="0X00"','authority="0X1"')
+                      receive = receive.replace('authority="0X00"', 'authority="0X11"')
                       that.$workersMysqlRepo.updateWorkerMachineInfo(receive, userid).then((res) => {
 
                         if (res.results.affectedRows === 1)

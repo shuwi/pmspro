@@ -363,6 +363,7 @@
       },
       socketOP(e) {
         var that = this
+        that.$Spin.show()
         var port = that.singlemachine.port
         var host = that.singlemachine.ip
         var client = new net.Socket()
@@ -467,6 +468,16 @@
             that.commandInsert(commandsdata)
           }
           sock.destroy()
+          that.$Spin.hide()
+        })
+        sock.setTimeout(1000)
+        sock.on('timeout', ()=>{
+          that.$Notice.error({
+            title: '错误',
+            desc: `考勤机 ${host}:${port} 连接超时，请检查考勤机网络连接！`
+          })
+          sock.destroy()
+          that.$Spin.hide()
         })
         sock.on('error', function (error) {
           // 错误出现之后关闭连接
@@ -475,6 +486,7 @@
             desc: error
           })
           sock.destroy()
+          that.$Spin.hide()
         })
       },
       machineInfoUpdate(data) {

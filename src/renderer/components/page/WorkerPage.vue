@@ -27,11 +27,13 @@
 </template>
 <script>
   import settingsRepository from '@/repositories/settingsRepository'
+
   import WorkerModal from '../modals/workers/WorkerModal.vue'
   import LabourCheck from '../modals/workers/LabourCheck.vue'
   import {
     mapActions
   } from 'vuex'
+
   export default {
     name: 'worker-page',
     components: {
@@ -660,16 +662,8 @@
         var port = checkininfo.checkinport
         var host = checkininfo.checkinhost
         var client = new net.Socket()
-        // client.setTimeout(5000)
-        client.on('timeout', () => {
-          console.log('socket timeout')
-          that.$Modal.error({
-            title: '提示',
-            content: `设备${host}:${port}连接超时，请检查网络连接`
-          })
-          that.$Spin.hide()
-          client.end()
-        })
+        var resdata = ''
+
         client.connect(port, host, function (err) {
           if (err) {
             console.log('err = ', err)
@@ -696,18 +690,19 @@
           }, 1000 * 90)
           var utf8str =
             `EnrollEmployee(id="${params.row.userId}" name="${params.row.name}" dutyrule="1" photo="1" save="3" authority="17")`
-          console.log('utf8str = ', utf8str)
           client.write(iconv.encode(utf8str, 'GBK'))
         })
         client.on('data', function (data) {
-          //console.log('返回数据：', iconv.decode(data, 'GBK'))
-          if (data.toString() === 'Return(result="success" status="cancel")') {
+          resdata += iconv.decode(data, 'GBK')
+        })
+        client.on('end', function () {
+          if (resdata.toString() === 'Return(result="success" status="cancel")') {
             that.$Modal.warning({
               title: '提示',
               content: `<p style="font-size:12px;">操作已取消！</p>`
             })
             that.$Spin.hide()
-          } else if (data.toString().length > 500) {
+          } else if (resdata.toString().length > 500) {
             var updatedata = {
               'checkinState': 1,
               'checkinTime': new Date(),
@@ -794,7 +789,6 @@
               title: '提示',
               content: `<p style="font-size:12px;">设备故障或设备正忙！</p>`
             })
-
             that.$Spin.hide()
           }
           client.destroy()
@@ -804,6 +798,7 @@
             title: '提示',
             content: `<p style="font-size:12px;">设备连接异常！</p>`
           })
+          client.destroy()
           that.$Spin.hide()
         })
       }

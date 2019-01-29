@@ -39,7 +39,7 @@
         var schedule = require("node-schedule")
         var rule = new schedule.RecurrenceRule()
         var times = [1, 21, 41, 56]
-        
+
         var that = this
         rule.minute = times
         schedule.scheduleJob(rule, function () {
@@ -342,7 +342,7 @@
       margin-bottom: 30px;
       border: 1px solid #d3d3d3;
       border-radius: 6px;
-      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 0 25px 0 rgba(0, 0, 0, 0.1);
       transition: all .4s ease-in-out;
     }
 
@@ -389,6 +389,10 @@
       margin: 0;
     }
 
+    .ivu-checkbox-inner {
+      border: 2px solid #555;
+    }
+
   }
 
   ::-webkit-scrollbar {
@@ -398,7 +402,7 @@
 
   /*定义滚动条轨道 内阴影+圆角*/
   ::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(136, 136, 136, 0.3);
+    box-shadow: inset 0 0 6px rgba(136, 136, 136, 0.3);
     background-color: rgb(255, 255, 255);
   }
 

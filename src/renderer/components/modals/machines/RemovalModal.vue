@@ -19,7 +19,8 @@
 </template>
 <script>
   import settingsRepository from '@/repositories/settingsRepository'
-  
+  import socketRepository from '@/repositories/socketRepository'
+  const Promise = require('bluebird')
   export default {
     name: 'removal-modal',
     props: ['machinesellist'],
@@ -87,6 +88,8 @@
         if (typeof that.$store.state.modals.login.projectId
           .id === 'undefined')
           return
+        if (typeof that.machinesellist[0] === 'undefined')
+          return
         that.$workersMysqlRepo.getRemovals(that.$store.state.modals.login.projectId.id, typeof number === 'undefined' ?
           1 : number, that.pagesize).then((res) => {
 
@@ -130,48 +133,40 @@
           port: row.port,
           postdata: postdata
         }
-        var net = require('net')
-        var iconv = require('iconv-lite')
-        var client = new net.Socket()
 
-        var receive = ''
-        client.connect(req.port, req.ip, function () {
-          client.write(iconv.encode(req.postdata, 'GBK'))
-          client.end()
-        })
-        client.on('data', (data) => {
-          receive += iconv.decode(data, 'GBK')
-        })
-        client.on('end', () => {
-          if (receive.indexOf('Return(result="success"') !== -1) {
-            var moment = require('moment')
-            var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
-            var commandsdata = {
-              machinesn: that.machinesellist[0].sn,
-              projectid: that.$store.state.modals.login.projectId.id,
-              createdate: datenow,
-              executedate: datenow,
-              commandtype: '手动下发人员信息',
-              commandcontent: postdata,
-              commandresponse: receive,
-              resulttype: 1
+        Promise.race([socketRepository.socketPromise(req)]).then((res) => {
+          that.$Spin.show()
+          if (res.results) {
+            var receive = res.results
+            if (receive.indexOf('Return(result="success"') !== -1) {
+              var moment = require('moment')
+              var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
+              var commandsdata = {
+                machinesn: that.machinesellist[0].sn,
+                projectid: that.$store.state.modals.login.projectId.id,
+                createdate: datenow,
+                executedate: datenow,
+                commandtype: '手动下发人员信息',
+                commandcontent: postdata,
+                commandresponse: receive,
+                resulttype: 1
+              }
+              that.commandInsert(commandsdata, row.name)
+            } else {
+              that.$Notice.error({
+                title: '提醒',
+                desc: '手动下发人员信息失败'
+              })
             }
-            that.commandInsert(commandsdata, row.name)
-          } else {
-            that.$Notice.error({
-              title: '提醒',
-              desc: '手动下发人员信息失败'
-            })
           }
-        })
-        client.on('error', (err) => {
+        }).catch((err) => {
           that.$Notice.error({
             title: '提醒',
-            desc: `<p style="font-size:12px;">设备${req.ip}:${req.port}连接异常${err}，请检查网络连接！</p>`
+            desc: err
           })
-          client.destroy()
+        }).finally(() => {
+          that.$Spin.hide()
         })
-
       },
       commandInsert(data, indiv) {
         var that = this

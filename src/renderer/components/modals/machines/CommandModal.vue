@@ -101,9 +101,11 @@
         if (typeof that.$store.state.modals.login.projectId
           .id === 'undefined')
           return
+        if (typeof that.machinesellist[0] === 'undefined')
+          return
         var str = {
           projectid: that.$store.state.modals.login.projectId.id,
-          machinesn: typeof that.machinesellist[0].sn === 'undefined'? '': that.machinesellist[0].sn,
+          machinesn: typeof that.machinesellist[0].sn === 'undefined' ? '' : that.machinesellist[0].sn,
           keyword: that.keyword,
           pagenum: number,
           pagesize: that.pagesize

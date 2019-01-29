@@ -44,8 +44,9 @@
   import RemovalModal from '../modals/machines/RemovalModal.vue'
   import CommandModal from '../modals/machines/CommandModal.vue'
   import IndividualModal from '../modals/machines/IndividualModal.vue'
-  var net = require('net')
-  var iconv = require('iconv-lite')
+  import socketRepository from '@/repositories/socketRepository'
+  const Promise = require('bluebird')
+
   import {
     mapActions
   } from 'vuex'
@@ -224,7 +225,7 @@
           return
         }
 
-        if(e === 'delone'){
+        if (e === 'delone') {
           that.$store.dispatch('showIndividualModal')
           return
         }
@@ -363,129 +364,117 @@
       },
       socketOP(e) {
         var that = this
-        that.$Spin.show()
         var port = that.singlemachine.port
         var host = that.singlemachine.ip
-        var client = new net.Socket()
-        var strdata = ''
-        var sock = client.connect(port, host, function () {
-          sock.write(iconv.encode(e, 'GBK'))
-          sock.end()
-        })
-        sock.on('data', function (data) {
-          strdata += iconv.decode(data, 'GBK')
-        })
-        sock.on('end', function (data) {
-          if (strdata.indexOf('Return(result="success"') !== -1) {
-            if (e.indexOf('GetDeviceInfo()') !== -1)
-              try {
-                var edge = require('edge')
-                var getStrValue = edge.func({
-                  assemblyFile: "resources/FaceLibrary.dll",
-                  typeName: "FaceLibrary.FaceUtil",
-                  methodName: "getStrValue"
-                })
-                var edition = ''
-                getStrValue([strdata, 'edition'], function (err, result) {
-                  if (err) edition = ''
-                  else
-                    edition = result
-                })
-                var mac = ''
-                getStrValue([strdata, 'mac'], function (err, result) {
-                  if (err) mac = ''
-                  else
-                    mac = result
-                })
-                var sn = ''
-                getStrValue([strdata, 'dev_id'], function (err, result) {
-                  if (err) sn = ''
-                  else
-                    sn = result
-                })
-                var algedition = ''
-                getStrValue([strdata, 'alg_edition'], function (err, result) {
-                  if (err) algedition = ''
-                  else
-                    algedition = result
-                })
-                var deviceType = ''
-                getStrValue([strdata, 'type'], function (err, result) {
-                  if (err) deviceType = ''
-                  else
-                    deviceType = result
-                })
-                var data = {
-                  id: that.singlemachine.id,
-                  ip: that.singlemachine.ip,
-                  edition: edition,
-                  mac: mac,
-                  sn: sn,
-                  algedition: algedition,
-                  deviceType: deviceType
-                }
-                console.log('更新数据：', data)
-                that.machineInfoUpdate(data)
-              } catch (err) {
-                console.log('操作异常:', err)
-                that.$Notice.error({
-                  title: '提醒',
-                  desc: '操作异常'
-                })
-              }
-            else
-              that.$Notice.success({
-                title: '命令执行成功',
-                desc: strdata
-              })
 
-            var moment = require('moment')
-            var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
-            var commandsdata = {
-              machinesn: that.singlemachine.sn,
-              projectid: that.$store.state.modals.login.projectId.id,
-              createdate: datenow,
-              executedate: datenow,
-              commandtype: e,
-              commandcontent: e,
-              commandresponse: strdata,
-              resulttype: 1
+        var req = {
+          ip: host,
+          port: port,
+          postdata: e
+        }
+
+        Promise.race([socketRepository.socketPromise(req)]).then((res) => {
+          that.$Spin.show()
+          if (res.results) {
+            var strdata = res.results
+            if (strdata.indexOf('Return(result="success"') !== -1) {
+              if (e.indexOf('GetDeviceInfo()') !== -1)
+                try {
+                  var edge = require('edge')
+                  var getStrValue = edge.func({
+                    assemblyFile: "resources/FaceLibrary.dll",
+                    typeName: "FaceLibrary.FaceUtil",
+                    methodName: "getStrValue"
+                  })
+                  var edition = ''
+                  getStrValue([strdata, 'edition'], function (err, result) {
+                    if (err) edition = ''
+                    else
+                      edition = result
+                  })
+                  var mac = ''
+                  getStrValue([strdata, 'mac'], function (err, result) {
+                    if (err) mac = ''
+                    else
+                      mac = result
+                  })
+                  var sn = ''
+                  getStrValue([strdata, 'dev_id'], function (err, result) {
+                    if (err) sn = ''
+                    else
+                      sn = result
+                  })
+                  var algedition = ''
+                  getStrValue([strdata, 'alg_edition'], function (err, result) {
+                    if (err) algedition = ''
+                    else
+                      algedition = result
+                  })
+                  var deviceType = ''
+                  getStrValue([strdata, 'type'], function (err, result) {
+                    if (err) deviceType = ''
+                    else
+                      deviceType = result
+                  })
+                  var data = {
+                    id: that.singlemachine.id,
+                    ip: that.singlemachine.ip,
+                    edition: edition,
+                    mac: mac,
+                    sn: sn,
+                    algedition: algedition,
+                    deviceType: deviceType
+                  }
+                  console.log('更新数据：', data)
+                  that.machineInfoUpdate(data)
+                } catch (err) {
+                  console.log('操作异常:', err)
+                  that.$Notice.error({
+                    title: '提醒',
+                    desc: '操作异常'
+                  })
+                }
+              else
+                that.$Notice.success({
+                  title: '成功',
+                  desc: '恭喜，命令执行成功！'
+                })
+
+              var moment = require('moment')
+              var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
+              var commandsdata = {
+                machinesn: that.singlemachine.sn,
+                projectid: that.$store.state.modals.login.projectId.id,
+                createdate: datenow,
+                executedate: datenow,
+                commandtype: e,
+                commandcontent: e,
+                commandresponse: strdata,
+                resulttype: 1
+              }
+              that.commandInsert(commandsdata)
+            } else {
+              var moment = require('moment')
+              var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
+              var commandsdata = {
+                machinesn: that.singlemachine.sn,
+                projectid: that.$store.state.modals.login.projectId.id,
+                createdate: datenow,
+                executedate: datenow,
+                commandtype: e,
+                commandcontent: e,
+                commandresponse: strdata,
+                resulttype: 2
+              }
+              that.commandInsert(commandsdata)
             }
-            that.commandInsert(commandsdata)
-          } else {
-            var moment = require('moment')
-            var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
-            var commandsdata = {
-              machinesn: that.singlemachine.sn,
-              projectid: that.$store.state.modals.login.projectId.id,
-              createdate: datenow,
-              executedate: datenow,
-              commandtype: e,
-              commandcontent: e,
-              commandresponse: strdata,
-              resulttype: 2
-            }
-            that.commandInsert(commandsdata)
           }
-          sock.destroy()
-          that.$Spin.hide()
-        })
-        sock.setTimeout(1000)
-        sock.on('timeout', ()=>{
+        }).catch((err) => {
           that.$Notice.error({
             title: '错误',
-            desc: `考勤机 ${host}:${port} 连接超时，请检查考勤机网络连接！`
+            desc: err
           })
-          sock.destroy()
-          that.$Spin.hide()
-        })
-        sock.on('error', function (error) {
-          // 错误出现之后关闭连接
-          that.$Notice.error({
-            title: '错误',
-            desc: error
-          })
-          sock.destroy()
+        }).finally(() => {
           that.$Spin.hide()
         })
       },
@@ -527,7 +516,7 @@
         }
 
         that.$commandRepo.create(data).then((res) => {
-          if (res.results.insertId > 0)
+          /* if (res.results.insertId > 0)
             that.$Notice.success({
               title: '提醒',
               desc: '新增命令记录成功'
@@ -536,12 +525,12 @@
             that.$Notice.error({
               title: '提醒',
               desc: '新增命令记录失败'
-            })
+            }) */
         }).catch((err) => {
-          that.$Notice.error({
+          /* that.$Notice.error({
             title: '提醒',
             desc: '新增命令记录异常'
-          })
+          }) */
         })
       }
     }

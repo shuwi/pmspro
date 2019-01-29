@@ -25,7 +25,9 @@
 </template>
 <script>
   import settingsRepository from '@/repositories/settingsRepository'
-  
+  import socketRepository from '@/repositories/socketRepository'
+  const Promise = require('bluebird')
+
   export default {
     name: 'individual-modal',
     props: ['machinesellist'],
@@ -96,7 +98,8 @@
         if (typeof that.$store.state.modals.login.projectId
           .id === 'undefined')
           return
-
+        if (typeof that.machinesellist[0] === 'undefined')
+          return
         that.$workersMysqlRepo.getWorkers(that.keyword, that.$store.state.modals.login.projectId.id, number, that
           .pagesize).then((res) => {
           if (res.results) {
@@ -152,62 +155,54 @@
           postdata: postdata
         }
 
-        var net = require('net')
-        var iconv = require('iconv-lite')
-        var client = new net.Socket()
-
-        var receive = ''
-        client.connect(req.port, req.ip, function () {
-          client.write(iconv.encode(req.postdata, 'GBK'))
-          client.end()
-        })
-        client.on('data', (data) => {
-          receive += iconv.decode(data, 'GBK')
-        })
-        client.on('end', () => {
-          client.destroy()
-          if (receive.indexOf('Return(result="success"') !== -1) {
-            var moment = require('moment')
-            var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
-            var commandsdata = {
-              machinesn: that.machinesellist[0].sn,
-              projectid: that.$store.state.modals.login.projectId.id,
-              createdate: datenow,
-              executedate: datenow,
-              commandtype: '移除个别人员',
-              commandcontent: postdata,
-              commandresponse: receive,
-              resulttype: 1
+        Promise.race([socketRepository.socketPromise(req)]).then((res) => {
+          if (res.results) {
+            var receive = res.results
+            if (receive.indexOf('Return(result="success"') !== -1) {
+              that.$Notice.success({
+                title: '提醒',
+                desc: `人员${row.userId} ${row.name}移除成功!`
+              })
+              var moment = require('moment')
+              var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
+              var commandsdata = {
+                machinesn: that.machinesellist[0].sn,
+                projectid: that.$store.state.modals.login.projectId.id,
+                createdate: datenow,
+                executedate: datenow,
+                commandtype: '移除个别人员',
+                commandcontent: postdata,
+                commandresponse: receive,
+                resulttype: 1
+              }
+              that.commandInsert(commandsdata)
             }
-            that.commandInsert(commandsdata)
-          }
-          if (receive.indexOf('Return(result="failed" reason="unknown id")') !== -1) {
-            var moment = require('moment')
-            var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
-            var commandsdata = {
-              machinesn: that.machinesellist[0].sn,
-              projectid: that.$store.state.modals.login.projectId.id,
-              createdate: datenow,
-              executedate: datenow,
-              commandtype: '移除个别人员',
-              commandcontent: postdata,
-              commandresponse: receive,
-              resulttype: 2,
-              commandext: `人员${row.userId} ${row.name}不存在!`
+            if (receive.indexOf('Return(result="failed" reason="unknown id")') !== -1) {
+              var moment = require('moment')
+              var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
+              var commandsdata = {
+                machinesn: that.machinesellist[0].sn,
+                projectid: that.$store.state.modals.login.projectId.id,
+                createdate: datenow,
+                executedate: datenow,
+                commandtype: '移除个别人员',
+                commandcontent: postdata,
+                commandresponse: receive,
+                resulttype: 2,
+                commandext: `人员${row.userId} ${row.name}不存在!`
+              }
+              that.commandInsert(commandsdata)
+              that.$Notice.error({
+                title: '提醒',
+                desc: `人员${row.userId} ${row.name}不存在!`
+              })
             }
-            that.commandInsert(commandsdata)
-            that.$Notice.error({
-              title: '提醒',
-              desc: `人员${row.userId} ${row.name}不存在!`
-            })
           }
-        })
-        client.on('error', (err) => {
+        }).catch((err) => {
           that.$Notice.error({
             title: '提醒',
-            desc: `<p style="font-size:12px;">设备${req.ip}:${req.port}连接异常${err}，请检查网络连接！</p>`
+            desc: err
           })
-          client.destroy()
         })
 
       },
@@ -217,7 +212,7 @@
 
         data.commandfrom = log.username
         that.$commandRepo.create(data).then((res) => {
-          if (res.results.insertId > 0) {
+          /* if (res.results.insertId > 0) {
             that.$Notice.success({
               title: '提醒',
               desc: '新增命令记录成功'
@@ -229,12 +224,12 @@
               desc: '新增命令记录失败'
             })
 
-          }
+          } */
         }).catch((err) => {
-          that.$Notice.error({
+          /* that.$Notice.error({
             title: '提醒',
             desc: '新增命令记录异常'
-          })
+          }) */
         })
       }
     }

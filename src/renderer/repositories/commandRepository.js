@@ -34,7 +34,7 @@ export default class CommandRepository {
     }
     var stat =
       `INSERT INTO commands(${statlist.join(',')}) VALUES (${new Array(statlist.length).fill('?').join(',')})`
-    console.log(stat)
+
     return this.dao.run(stat,
       vallist)
   }
@@ -54,16 +54,28 @@ export default class CommandRepository {
   }
 
   getCommandsCount(str) {
-    return this.dao.run(
-      `SELECT count(id) as num from commands where projectid = ${str.projectid} and machinesn = ${str.machinesn} and (createdate like '${str.keyword}%' or executedate like '${str.keyword}%')`)
+    if (str.keyword[0] !== '' && str.keyword[1] !== '')
+      return this.dao.run(
+        `SELECT count(id) as num from commands where projectid = ${str.projectid} and machinesn = ${str.machinesn} 
+        and (DATE_FORMAT(createdate,'%Y-%m-%d') >= DATE_FORMAT('${str.keyword[0]}','%Y-%m-%d') AND DATE_FORMAT(createdate,'%Y-%m-%d') <= DATE_FORMAT('${str.keyword[1]}','%Y-%m-%d'))`)
+    else
+      return this.dao.run(
+        `SELECT count(id) as num from commands where projectid = ${str.projectid} and machinesn = ${str.machinesn}`)
   }
 
   getCommands(str) {
-    return this.dao.run(
-      `SELECT * from commands where projectid = ${str.projectid} 
+    if (str.keyword[0] !== '' && str.keyword[1] !== ''){
+      return this.dao.run(
+        `SELECT * from commands where projectid = ${str.projectid} 
       and machinesn = ${str.machinesn} 
-      and (createdate like '${str.keyword}%' or executedate like '${str.keyword}%') 
+      and (DATE_FORMAT(createdate,'%Y-%m-%d') >= DATE_FORMAT('${str.keyword[0]}','%Y-%m-%d') AND DATE_FORMAT(createdate,'%Y-%m-%d') <= DATE_FORMAT('${str.keyword[1]}','%Y-%m-%d')) 
       order by id desc limit ?,?`, [(str.pagenum - 1) * str.pagesize, str.pagesize])
+    }
+    else
+      return this.dao.run(
+        `SELECT * from commands where projectid = ${str.projectid} 
+        and machinesn = ${str.machinesn} 
+        order by id desc limit ?,?`, [(str.pagenum - 1) * str.pagesize, str.pagesize])
   }
 
 }

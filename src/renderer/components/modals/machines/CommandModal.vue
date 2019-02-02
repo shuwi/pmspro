@@ -7,11 +7,13 @@
     </p>
     <div>
       <p style="margin:0 auto 20px auto;width:95%;">
-        <Input placeholder="请输入关键字查询" style="width:300px;margin:0 10px 0 0;" clearable v-model="keyword" />
+        <!-- <Input placeholder="请输入关键字查询" style="width:300px;margin:0 10px 0 0;" clearable v-model="keyword" /> -->
+        <DatePicker type="daterange" :start-date="new Date()" placement="bottom-end" placeholder="请选择下发日期范围" style="width: 200px"
+          v-model="keyword" @on-change="dateRangePick"></DatePicker>
         <Button shape="circle" icon="md-search" class="btn" @click="refreshList(1)">查询</Button>
       </p>
       <p style="margin:0 auto 20px auto;width:95%;">
-        <Table border :columns="columns" :data="arr" ref="selectedWorkers" width="100%" size="small" @on-row-click="rowClick"></Table>
+        <Table border :columns="columns" :data="arr" ref="selectedWorkers" width="100%" size="small"></Table>
       </p>
       <p style="margin:0 auto 20px auto;width:95%;text-align:right;">
         <Page :current="current" :total="total" show-total @on-change="refreshList" :page-size="pagesize" />
@@ -35,7 +37,7 @@
     },
     data() {
       return {
-        keyword: '',
+        keyword: null,
         current: 1,
         total: 0,
         pagesize: 10,
@@ -110,6 +112,7 @@
           pagenum: number,
           pagesize: that.pagesize
         }
+        console.log('str = ', str)
         that.$commandRepo.getCommands(str).then((res) => {
           that.arr = res.results
         }).then(() => {
@@ -134,10 +137,6 @@
         this.current = 1
         this.$store.dispatch('hideCommandModal')
       },
-      rowClick(row, index) {
-        console.log('row = ', row)
-        console.log('index = ', index)
-      },
       resultType(type) {
         var res = '未执行'
         switch (type) {
@@ -149,6 +148,12 @@
             break
         }
         return res
+      },
+      dateRangePick(s) {
+        if (s.length === 2) {
+          this.keyword[0] = s[0]
+          this.keyword[1] = s[1]
+        }
       }
     }
   }

@@ -206,10 +206,8 @@
         </div>
         <div>
           <FormItem label="">
-            <Button type="primary" @click="handleSubmit('user')" shape="circle" style="width:100px;" :loading="loadingPostUser"
-              icon="md-checkmark">提交</Button>
-            <Button @click="handleReset('user')" style="margin-left: 8px;width:100px;" shape="circle" type="warning"
-              icon="ios-undo">重置</Button>
+            <Button type="info" @click="handleSubmit('user')" shape="circle" style="width:100px;" :loading="loadingPostUser">提交</Button>
+            <Button @click="handleReset('user')" style="margin-left: 8px;width:100px;" shape="circle">重置</Button>
           </FormItem>
         </div>
       </div>

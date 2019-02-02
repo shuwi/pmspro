@@ -211,26 +211,14 @@
         var log = settingsRepository.getUserlog()
 
         data.commandfrom = log.username
-        that.$commandRepo.create(data).then((res) => {
-          /* if (res.results.insertId > 0) {
-            that.$Notice.success({
-              title: '提醒',
-              desc: '新增命令记录成功'
-            })
+        that.$commandRepo.createTable().then(() => {
+          that.$commandRepo.create(data).then((res) => {
 
-          } else {
-            that.$Notice.error({
-              title: '提醒',
-              desc: '新增命令记录失败'
-            })
+          }).catch((err) => {
 
-          } */
-        }).catch((err) => {
-          /* that.$Notice.error({
-            title: '提醒',
-            desc: '新增命令记录异常'
-          }) */
+          })
         })
+
       }
     }
   }

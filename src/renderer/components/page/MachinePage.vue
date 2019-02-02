@@ -1,12 +1,12 @@
 <template id="machine-page">
   <div style="width:100vw;">
     <div style="margin:90px auto 20px auto;width:95%;">
-      <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showMachineInfo">添加设备</Button>
+      <!-- <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showMachineInfo">添加设备</Button> -->
       <Button shape="circle" icon="md-create" class="btn" type="warning" @click="editMachineInfo">修改设备</Button>
       <Button shape="circle" icon="md-close" class="btn" type="error" @click="delMachineInfoDialog">删除设备</Button>
       <Button shape="circle" icon="ios-refresh" class="btn" type="info" @click="refreshMachineList">刷新列表</Button>
 
-      <Dropdown style="margin-left: 20px" @on-click="machineop" trigger="click">
+      <Dropdown @on-click="machineop" trigger="click">
         <Button shape="circle">
           考勤机操作
           <Icon type="ios-arrow-down" style="margin-left:6px;"></Icon>
@@ -514,24 +514,14 @@
         if (data.commandtype.indexOf('SetDateTime(date=') !== -1) {
           data.commandtype = '同步设备时间'
         }
+        that.$commandRepo.createTable().then(() => {
+          that.$commandRepo.create(data).then((res) => {
 
-        that.$commandRepo.create(data).then((res) => {
-          /* if (res.results.insertId > 0)
-            that.$Notice.success({
-              title: '提醒',
-              desc: '新增命令记录成功'
-            })
-          else
-            that.$Notice.error({
-              title: '提醒',
-              desc: '新增命令记录失败'
-            }) */
-        }).catch((err) => {
-          /* that.$Notice.error({
-            title: '提醒',
-            desc: '新增命令记录异常'
-          }) */
+          }).catch((err) => {
+
+          })
         })
+
       }
     }
   }

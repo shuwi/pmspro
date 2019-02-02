@@ -4,15 +4,19 @@
     <p slot="header">
       <Icon type="md-archive" />
       <span style="font-weight:normal;">手动下发人员信息</span>
-      <span style="font-weight:normal;font-size:12px;color:green;">单击人员列表所在行即可下发</span>
     </p>
     <div>
       <p style="margin:0 auto 20px auto;width:95%;">
-        <Table border :columns="workerColumns" :data="workersArr" ref="selectedWorkers" width="100%" size="small"
-          @on-row-click="rowClick"></Table>
+        <Input placeholder="请输入身份证或姓名查询" style="width:300px;margin:0 10px 0 0;" clearable v-model="keyword" />
+        <Button shape="circle" icon="md-search" class="btn" @click="refreshList(1)">查询</Button>
       </p>
-      <p style="margin:0 auto 20px auto;width:95%;text-align:right;">
-        <Page :current="current" :total="total" show-total @on-change="refreshList" :page-size="pagesize" />
+      <p style="margin:0 auto 20px auto;width:95%;">
+        <Table border :columns="workerColumns" :data="workersArr" ref="selectedWorkers" width="100%" size="small"
+          @on-selection-change="workersel"></Table>
+      </p>
+      <p style="margin:0 auto 20px auto;width:95%;text-align:right;dispaly:flex;flex-direction: column;align-items: flex-start;">
+        <Button shape="circle" type="primary" @click="submit" style="float:left;width:120px;">提交</Button>
+        <Page :current="current" :total="total" show-total @on-change="refreshList" :page-size="pagesize" style="order:1;" />
       </p>
     </div>
   </Modal>
@@ -20,6 +24,10 @@
 <script>
   import settingsRepository from '@/repositories/settingsRepository'
   import socketRepository from '@/repositories/socketRepository'
+  import {
+    setTimeout,
+    clearTimeout
+  } from 'timers';
   const Promise = require('bluebird')
   export default {
     name: 'removal-modal',
@@ -36,12 +44,19 @@
     },
     data() {
       return {
+        timeoutId: null,
+        keyword: '',
         current: 1,
         total: 0,
         pagesize: 10,
+        workersellist: [],
         workerslist: [],
         workersArr: [],
         workerColumns: [{
+            type: 'selection',
+            width: 60,
+            align: 'center'
+          }, {
             type: 'index',
             width: 60,
             align: 'center',
@@ -90,7 +105,8 @@
           return
         if (typeof that.machinesellist[0] === 'undefined')
           return
-        that.$workersMysqlRepo.getRemovals(that.$store.state.modals.login.projectId.id, typeof number === 'undefined' ?
+        that.$workersMysqlRepo.getRemovals(that.keyword, that.$store.state.modals.login.projectId.id, typeof number ===
+          'undefined' ?
           1 : number, that.pagesize).then((res) => {
 
           if (res.results) {
@@ -104,7 +120,8 @@
           }
           that.workersArr = res.results
         }).then(() => {
-          that.$workersMysqlRepo.getRemovalsNum(that.$store.state.modals.login.projectId.id).then((data) => {
+          that.$workersMysqlRepo.getRemovalsNum(that.keyword, that.$store.state.modals.login.projectId.id).then((
+            data) => {
             console.log('getRemovalsNum = ', data)
             that.total = data.results[0].num
           }).catch((err) => {
@@ -125,81 +142,102 @@
         this.current = 1
         this.$store.dispatch('hideRemovalModal')
       },
-      rowClick(row, index) {
-        var postdata = row.machinepost.replace(/Return/g, 'SetEmployee').replace('result="success" ', '')
+      submit() {
         var that = this
+        if (that.workersellist.length <= 0) {
+          that.$Notice.error({
+            title: '提醒',
+            desc: '请选择人员后再下发！'
+          })
+          return
+        }
+
+        for (let i = 1; i <= that.workersellist.length; i++) {
+          that.commitRemoval(that.workersellist[i - 1], i)
+        }
+      },
+      commitRemoval(row, i) {
+        var that = this
+        var postdata = row.machinepost.replace(/Return/g, 'SetEmployee').replace('result="success" ', '')
         var req = {
           ip: row.ip,
           port: row.port,
           postdata: postdata
         }
-
-        Promise.race([socketRepository.socketPromise(req)]).then((res) => {
-          that.$Spin.show()
-          if (res.results) {
-            var receive = res.results
-            if (receive.indexOf('Return(result="success"') !== -1) {
-              var moment = require('moment')
-              var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
-              var commandsdata = {
-                machinesn: that.machinesellist[0].sn,
-                projectid: that.$store.state.modals.login.projectId.id,
-                createdate: datenow,
-                executedate: datenow,
-                commandtype: '手动下发人员信息',
-                commandcontent: postdata,
-                commandresponse: receive,
-                resulttype: 1
+        let t = setTimeout(() => {
+          Promise.race([socketRepository.socketPromise(req)]).then((res) => {
+            if (res.results) {
+              var receive = res.results
+              if (receive.indexOf('Return(result="success"') !== -1) {
+                var moment = require('moment')
+                var datenow = moment().format("YYYY-MM-DD HH:mm:ss")
+                var commandsdata = {
+                  machinesn: that.machinesellist[0].sn,
+                  projectid: that.$store.state.modals.login.projectId.id,
+                  createdate: datenow,
+                  executedate: datenow,
+                  commandtype: '手动下发人员信息',
+                  commandcontent: postdata,
+                  commandresponse: receive,
+                  resulttype: 1
+                }
+                that.commandInsert(commandsdata, row.name)
+              } else {
+                that.$Notice.error({
+                  title: '提醒',
+                  desc: `手动下发人员信息失败!`
+                })
               }
-              that.commandInsert(commandsdata, row.name)
-            } else {
-              that.$Notice.error({
-                title: '提醒',
-                desc: '手动下发人员信息失败'
-              })
             }
-          }
-        }).catch((err) => {
-          that.$Notice.error({
-            title: '提醒',
-            desc: err
+          }).catch((err) => {
+            that.$Notice.error({
+              title: '提醒',
+              desc: err
+            })
+          }).finally(() => {
+            
           })
-        }).finally(() => {
-          that.$Spin.hide()
-        })
+          clearTimeout(t)
+        }, 1000 * i)
       },
       commandInsert(data, indiv) {
         var that = this
         var log = settingsRepository.getUserlog()
         data.commandfrom = log.username
-        that.$commandRepo.create(data).then((res) => {
-          if (res.results.insertId > 0) {
-            that.$Notice.success({
-              title: '提醒',
-              desc: '新增命令记录成功'
-            })
-            that.$Notice.success({
-              title: '提醒',
-              desc: `手动下发人员${indiv}成功`
-            })
-          } else {
+        that.$commandRepo.createTable().then(() => {
+          that.$commandRepo.create(data).then((res) => {
+            if (res.results.insertId > 0) {
+
+              that.$Notice.success({
+                title: '提醒',
+                desc: `手动下发人员${indiv}成功`
+              })
+            } else {
+
+              that.$Notice.error({
+                title: '提醒',
+                desc: `手动下发人员${indiv}失败`
+              })
+            }
+          }).catch((err) => {
             that.$Notice.error({
               title: '提醒',
-              desc: '新增命令记录失败'
+              desc: '新增命令记录异常'
             })
-            that.$Notice.error({
-              title: '提醒',
-              desc: `手动下发人员${indiv}失败`
-            })
-          }
-        }).catch((err) => {
-          that.$Notice.error({
-            title: '提醒',
-            desc: '新增命令记录异常'
           })
         })
+
+      },
+      workersel(sel) {
+        this.workersellist = sel
       }
     }
   }
 
 </script>
+<style>
+  .btn {
+    order: 0;
+  }
+
+</style>

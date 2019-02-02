@@ -65,7 +65,7 @@ export default class LogsRepository {
         AND w.inState = 1
         AND m.projectId = ${projectId}
         AND w.projectId = ${projectId}
-        AND (p.userid like '${keyword}%' or p.machinesn like '${keyword}%' or p.logdate like '${keyword}%') order by p.id desc`)
+        AND (p.userid like '%${keyword}%' or p.machinesn like '%${keyword}%' or p.logdate like '%${keyword}%') order by p.id desc`)
   }
   getUploadLogs(projectId) {
     return this.dao.run(
@@ -124,8 +124,37 @@ export default class LogsRepository {
         AND w.inState = 1
         AND m.projectId = ${projectId}
         AND w.projectId = ${projectId}
-        AND (p.userid like '${keyword}%' or p.machinesn like '${keyword}%' or p.logdate like '${keyword}%') order by p.id desc limit ?,?`,
+        AND (p.userid like '%${keyword}%' or p.machinesn like '%${keyword}%' or p.logdate like '%${keyword}%') order by p.id desc limit ?,?`,
       [(pagenum - 1) * pagesize, pagesize])
+  }
+  getAllLogs(keyword, projectId) {
+    return this.dao.run(
+      `SELECT
+      w.id AS uid,
+      w.userId as userId,
+      w.name as userName,
+      w.workKindName as workKindName,
+      w.groupname as groupName,
+      w.mobile as mobile,
+      m.id AS snId,
+      m.name as mName,
+      p.projectid AS ngProjectId,
+      p.logdate AS time,
+      p.machinesn AS machinesn,
+      m.deviceProperty AS type,
+      p.photo AS photo,
+      p.id AS lablorId,
+      p.uploaded AS delFlag
+      FROM
+        postlog p
+      LEFT JOIN machine m ON p.machinesn = m.sn
+      LEFT JOIN worker w ON p.userid = w.userId
+      WHERE
+        p.projectid = ${projectId}
+        AND w.inState = 1
+        AND m.projectId = ${projectId}
+        AND w.projectId = ${projectId}
+        AND (p.userid like '%${keyword}%' or p.machinesn like '%${keyword}%' or p.logdate like '%${keyword}%') order by p.id desc`)
   }
   uploaded(dellist) {
     return this.dao.run(

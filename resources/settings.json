@@ -24,7 +24,7 @@
     "port": 3306
   },
   "checkinSettings": {
-    "checkinhost": "192.168.20.153",
+    "checkinhost": "192.168.20.5",
     "checkinport": 9922
   },
   "userlog": {

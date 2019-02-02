@@ -11,8 +11,11 @@ export default {
         client.write(iconv.encode(req.postdata, 'GBK'))
         client.end()
       })
-      client.setTimeout(1000)
+      client.setTimeout(1000, () => {
+        reject(`设备${req.ip}:${req.port}连接超时，即将断开连接...`)
+      })
       client.on('timeout', () => {
+        client.end()
         client.destroy()
         reject(`设备${req.ip}:${req.port}连接超时，请检查网络连接！`)
       })
@@ -20,13 +23,15 @@ export default {
         receive += iconv.decode(data, 'GBK')
       })
       client.on('end', () => {
+        client.destroy()
         resolve({
           results: receive
         })
       })
       client.on('error', (err) => {
+        client.end()
         client.destroy()
-        reject(`设备${req.ip}:${req.port}连接错误，请检查网络连接！`)
+        reject(`设备${req.ip}:${req.port}连接错误:(<br/>${err}`)
       })
     })
 

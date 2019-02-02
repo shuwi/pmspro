@@ -7,8 +7,8 @@
     <div style="order:2;padding:10px 25px;flex-grow:2;overflow:auto;margin:0;flex-shrink:1;">
       <div style="margin:0 auto 20px auto;width:100%;">
         <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showUserModal" v-if="canAddUser">添加人员</Button>
-        <Button shape="circle" icon="md-arrow-round-back" class="btn" @click="labourout">人员退场</Button>
-        <Button shape="circle" icon="md-arrow-round-forward" class="btn" @click="labourin">人员进场</Button>
+        <Button shape="circle" icon="md-arrow-round-back" class="btn" @click="labourout" type="error">人员退场</Button>
+        <Button shape="circle" icon="md-arrow-round-forward" class="btn" @click="labourin" type="warning">人员进场</Button>
         <Button shape="circle" icon="ios-refresh" class="btn" @click="testone" :loading="getloading">更新数据</Button>
         <Input placeholder="请输入姓名或身份证号、手机号后查询" style="width:300px;margin:0 10px 0 0;" clearable v-model="keyword" />
         <Button shape="circle" icon="md-search" class="btn" @click="search">查询</Button>

@@ -150,12 +150,12 @@ export default class WorkersMySQLRepository {
       `UPDATE worker set machinepost = ? WHERE userId = ?`
     return this.dao.run(stat, [state, userId])
   }
-  getRemovals(pid, pagenum, pagesize) {
+  getRemovals(keyword, pid, pagenum, pagesize) {
     return this.dao.run(
-      `SELECT userId,name,projectId,machinepost from worker where projectId = ? and machinepost is not null limit ?,?`, [pid, (pagenum - 1) * pagesize, pagesize])
+      `SELECT userId,name,projectId,machinepost from worker where (groupname like '%${keyword}%' or userId like '%${keyword}%' or mobile like '%${keyword}%' or name like '%${keyword}%') and projectId = ? and machinepost is not null limit ?,?`, [pid, (pagenum - 1) * pagesize, pagesize])
   }
-  getRemovalsNum(pid){
+  getRemovalsNum(keyword, pid){
     return this.dao.run(
-      `SELECT count(id) as num from worker where projectId = ? and machinepost is not null`, [pid])
+      `SELECT count(id) as num from worker where (groupname like '%${keyword}%' or userId like '%${keyword}%' or mobile like '%${keyword}%' or name like '%${keyword}%') and projectId = ? and machinepost is not null`, [pid])
   }
 }

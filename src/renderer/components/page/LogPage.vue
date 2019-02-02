@@ -97,7 +97,8 @@
             align: 'center'
           }
         ],
-        logdata: []
+        logdata: [],
+        exportdata: []
       }
     },
     created() {
@@ -139,6 +140,11 @@
         }).then(() => that.$logsRepo.getLogs(k, 1, that.logpagesize, that.$store.state.modals.login.projectId.id)).then(
           (list) => {
             that.logdata = list.results
+            that.$logsRepo.getAllLogs(k, that.$store.state.modals.login.projectId.id).then((res) => {
+              that.exportdata = res.results
+            }).catch((err) => {
+              console.log(err)
+            })
           }).catch((err) => {
           console.log(err)
         })
@@ -152,6 +158,11 @@
             }).then(() => that.$logsRepo.getLogs(that.logkeyword, number, that.logpagesize, that.$store.state.modals
               .login.projectId.id)).then((list) => {
               that.logdata = list.results
+              that.$logsRepo.getAllLogs(that.logkeyword, that.$store.state.modals.login.projectId.id).then((res) => {
+                that.exportdata = res.results
+              }).catch((err) => {
+                console.log(err)
+              })
             }).catch((err) => {
               console.log(err)
             }).finally(() => {
@@ -209,10 +220,18 @@
         })
       },
       populate() {
+        this.exportdata.forEach((v, i, a)=>{
+          a[i].userId = `\t${v.userId}\t`
+          a[i].mobile = `\t${v.mobile}\t`
+          a[i].machinesn = `\t${v.machinesn}\t`
+          a[i].mName = `\t${v.mName}\t`
+          a[i].time = `\t${v.time}\t`
+          a[i].type = this.machineType(v.type)
+        })
         this.$refs.logs.exportCsv({
           filename: '考勤记录',
-          columns: this.logcolumns.filter((col, index) => index < 9 && index > 0),
-          data: this.logdata
+          columns: this.logcolumns.filter((col, index) => index < 10 && index > 0),
+          data: this.exportdata
         })
       }
     }

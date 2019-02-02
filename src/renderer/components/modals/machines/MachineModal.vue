@@ -11,7 +11,7 @@
         </i-input>
       </FormItem>
       <FormItem prop="port" label="端口">
-        <InputNumber :max="10000" :min="0" v-model.number="formInline.port" style="width: 260px"></InputNumber>
+        <InputNumber :max="10000" :min="0" v-model.number="formInline.port" style="width: 260px" :disabled="ipinput"></InputNumber>
       </FormItem>
       <FormItem prop="serverIp" label="服务器IP">
         <i-input type="text" v-model.trim="formInline.serverIp" placeholder="请填写IP" style="width: 260px" :disabled="ipinput">

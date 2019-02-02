@@ -15,10 +15,8 @@
       </Row>
       <Row>
         <FormItem>
-          <Button type="primary" @click="handleSubmit('joinUser')" shape="circle" style="width:100px;" :loading="loadingPostUser"
-            icon="md-checkmark">提交</Button>
-          <Button v-if="status" @click="handleReset('joinUser')" style="margin-left: 8px;width:100px;" shape="circle"
-            type="warning" icon="ios-undo">重置</Button>
+          <Button type="info" @click="handleSubmit('joinUser')" shape="circle" style="width:100px;" :loading="loadingPostUser">提交</Button>
+          <Button v-if="status" @click="handleReset('joinUser')" style="margin-left: 8px;width:100px;" shape="circle">重置</Button>
         </FormItem>
       </Row>
     </Form>

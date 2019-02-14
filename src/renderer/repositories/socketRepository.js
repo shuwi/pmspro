@@ -7,11 +7,14 @@ export default {
     var client = new net.Socket()
     var receive = ''
     return new Promise((resolve, reject) => {
-      client.connect(req.port, req.ip, function () {
+      client.connect({
+        port: req.port,
+        host: req.ip
+      }, () => {
         client.write(iconv.encode(req.postdata, 'GBK'))
         client.end()
       })
-      client.setTimeout(1000, () => {
+      client.setTimeout(990, () => {
         reject(`设备${req.ip}:${req.port}连接超时，即将断开连接...`)
       })
       client.on('timeout', () => {
@@ -23,10 +26,18 @@ export default {
         receive += iconv.decode(data, 'GBK')
       })
       client.on('end', () => {
+        console.log(`END`)
+        client.end()
         client.destroy()
+        //console.log(`client = ${JSON.stringify(client)}`)
         resolve({
           results: receive
         })
+      })
+      client.on('close', (data) => {
+        client.end()
+        client.destroy()
+        console.log(`CLOSED: ${data}`)
       })
       client.on('error', (err) => {
         client.end()

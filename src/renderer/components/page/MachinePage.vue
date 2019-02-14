@@ -287,7 +287,7 @@
           return
         that.$machinesRepo.getUnuploadMachines(that.$store.state.modals.login.projectId
           .id).then((res) => {
-          console.log('getUnuploadMachines = ', res)
+          
           if (res.results.length > 0) {
             var postdata = []
             var ids = []
@@ -327,7 +327,6 @@
                   }
                 })
                 .then(function (data) {
-                  console.log('远程添加', data)
                   if (data.data.code === 1) {
                     that.$machinesRepo.uploaded(ids).then((res) => {
                       console.log(res)
@@ -483,7 +482,7 @@
         that.$machinesRepo.update(data).then(() => {
           that.$Notice.success({
             title: '提醒',
-            desc: '修改成功'
+            desc: '设备信息获取并修改成功'
           })
         }).catch((err) => {
           that.$Notice.error({

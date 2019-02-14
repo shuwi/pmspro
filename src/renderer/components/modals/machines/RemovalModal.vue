@@ -4,6 +4,7 @@
     <p slot="header">
       <Icon type="md-archive" />
       <span style="font-weight:normal;">手动下发人员信息</span>
+      <!-- <span style="font-weight:normal;color:pink;">【若个别人员下发失败，可关闭窗口稍后重试】</span> -->
     </p>
     <div>
       <p style="margin:0 auto 20px auto;width:95%;">
@@ -155,6 +156,7 @@
         for (let i = 1; i <= that.workersellist.length; i++) {
           that.commitRemoval(that.workersellist[i - 1], i)
         }
+        this.refreshList(1)
       },
       commitRemoval(row, i) {
         var that = this
@@ -185,19 +187,19 @@
               } else {
                 that.$Notice.error({
                   title: '提醒',
-                  desc: `手动下发人员信息失败!`
+                  desc: `手动下发人员信息失败${receive}!`
                 })
               }
             }
+            clearTimeout(t)
           }).catch((err) => {
             that.$Notice.error({
-              title: '提醒',
+              title: '异常',
               desc: err
             })
           }).finally(() => {
-            
+            clearTimeout(t)
           })
-          clearTimeout(t)
         }, 1000 * i)
       },
       commandInsert(data, indiv) {
@@ -221,7 +223,7 @@
             }
           }).catch((err) => {
             that.$Notice.error({
-              title: '提醒',
+              title: '异常',
               desc: '新增命令记录异常'
             })
           })

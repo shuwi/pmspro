@@ -220,6 +220,7 @@
         })
       },
       populate() {
+        var moment = require('moment')
         this.exportdata.forEach((v, i, a)=>{
           a[i].userId = `\t${v.userId}\t`
           a[i].mobile = `\t${v.mobile}\t`
@@ -229,7 +230,7 @@
           a[i].type = this.machineType(v.type)
         })
         this.$refs.logs.exportCsv({
-          filename: '考勤记录',
+          filename: `考勤记录${moment().format('YYYYMMDD')}`,
           columns: this.logcolumns.filter((col, index) => index < 10 && index > 0),
           data: this.exportdata
         })

@@ -335,14 +335,14 @@
     }
 
     .ivu-modal-mask {
-      background: #f8f8f9;
+      background: #f8f9fd;
     }
 
     .ivu-modal-content {
       margin-bottom: 30px;
-      border: 1px solid #d3d3d3;
+      border: 1px solid rgba(105,87,218,.06);
       border-radius: 6px;
-      box-shadow: 0 0 25px 0 rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px 0 rgba(33, 35, 68, 0.13);
       transition: all .4s ease-in-out;
     }
 

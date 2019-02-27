@@ -327,6 +327,7 @@
                   }
                 })
                 .then(function (data) {
+                  console.log('传送设备数据后反馈 = ', data)
                   if (data.data.code === 1) {
                     that.$machinesRepo.uploaded(ids).then((res) => {
                       console.log(res)
